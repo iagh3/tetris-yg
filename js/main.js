@@ -268,6 +268,8 @@
         blastBestDisp: $("blastBestDisp"),
         blastGoScore: $("blastGoScore"),
         blastGoBest: $("blastGoBest"),
+        rowBlastBest: $("rowBlastBest"),
+        btnBlastDoubleScore: $("btnBlastDoubleScore"),
         btnBlastMenu: $("btnBlastMenu"),
         btnBlastRetry: $("btnBlastRetry"),
         btnBlastGoMenu: $("btnBlastGoMenu"),
@@ -334,14 +336,19 @@
 
     // ===== Состояние =====
     let game = null, renderer = null, input = null;
-    let reviveAvailable = true, lastFrame = 0, advPaused = false;
+    let advPaused = false, lastFrame = 0, lbReturnEl = null;
+
+    // — Классика (марафон / уровни) —
     let gameMode = "marathon", currentCampaignLevel = 1;
     let levelGoalLines = 0, levelGoalMet = false;
     let sessionTspins = 0, sessionB2bs = 0;
     let levelTimeLeft = 0, levelTimerInt = 0, elapsedTimerInt = 0;
     let gameStartTime = 0, piecesPlaced = 0, sessionMaxCombo = 0;
+    let reviveAvailable = true;
     let lastGameScore = 0, scoreDoubled = false, lastMilestone = 0;
-    let lbReturnEl = null;
+
+    // — Block Blast —
+    let blastLastScore = 0, blastScoreDoubled = false;
 
     // ===== Темы =====
     function loadTheme() {
@@ -621,6 +628,9 @@
         SDK.gameplayStart();
         Audio.unlock();
         touchStreak();
+        blastLastScore = 0;
+        blastScoreDoubled = false;
+        dom.btnBlastDoubleScore.hidden = true;
         const best = parseInt(Storage.get(BLAST_BEST_KEY)) || 0;
         dom.blastBestDisp.textContent = best.toLocaleString();
         dom.blastScore.textContent = '0';
@@ -632,18 +642,23 @@
             if (combo > 1) showToast(I18N.t('combo') + combo, { accent: true, duration: 900 });
             else if (n >= 2) showToast(n + (I18N.current === 'ru' ? ' линий!' : ' lines!'), { accent: true, duration: 900 });
         });
-        BlastGame.on('over', ({ score }) => {
+        BlastGame.on('over', async ({ score }) => {
             SDK.gameplayStop();
             Audio.gameOver();
             const prev  = parseInt(Storage.get(BLAST_BEST_KEY)) || 0;
             const best2 = Math.max(score, prev);
             if (best2 > prev) Storage.set({ [BLAST_BEST_KEY]: best2 });
-            setTimeout(async () => {
-                dom.blastGoScore.textContent = score.toLocaleString();
-                dom.blastGoBest.textContent  = best2.toLocaleString();
-                showOverlay(dom.overlayBlastOver);
-                await SDK.showInterstitial();
-            }, 700);
+            blastLastScore = score;
+            await new Promise(r => setTimeout(r, 700));
+            dom.blastGoScore.textContent = score.toLocaleString();
+            dom.blastGoBest.textContent  = best2.toLocaleString();
+            dom.btnBlastDoubleScore.hidden = true;
+            showOverlay(dom.overlayBlastOver);
+            await SDK.showInterstitial();
+            // Only reveal the button if the user is still on this overlay (not navigated away).
+            if (dom.overlayBlastOver.classList.contains('overlay--active')) {
+                dom.btnBlastDoubleScore.hidden = !SDK.ready || score === 0 || blastScoreDoubled;
+            }
         });
     }
 
@@ -739,7 +754,7 @@
             setTimeout(() => showToast(msg, {accent: true, duration: 2500}), 700);
         }
     }
-    function showGameOverScreen(payload, titleKey) {
+    async function showGameOverScreen(payload, titleKey) {
         if (titleKey) dom.goHeading.textContent=I18N.t(titleKey);
         const elapsed=gameStartTime?(Date.now()-gameStartTime)/1000:0;
         const pps=piecesPlaced>0&&elapsed>0?(piecesPlaced/elapsed).toFixed(2):"—";
@@ -771,34 +786,50 @@
         dom.finalPPS.textContent=pps;
         dom.rowFinalBest.hidden=!isMarathon;
         dom.rowFinalBest.classList.toggle("is-record",isNewRecord);
-        dom.btnRevive.hidden=!reviveAvailable||!SDK.ready||!isMarathon;
-        dom.btnDoubleScore.hidden=!isMarathon||!SDK.ready||payload.score===0||scoreDoubled;
+        // Hide rewarded buttons while the interstitial is playing; show them once it closes.
+        // waitForAdSlot in showRewarded enforces a 2 s gap before the next rewarded call.
+        dom.btnRevive.hidden=true;
+        dom.btnDoubleScore.hidden=true;
         dom.btnGOLeaderboard.hidden=!isMarathon;
         lastGameScore=payload.score;
         showOverlay(dom.overlayGameOver);
-        SDK.showInterstitial();
+        await SDK.showInterstitial();
+        dom.btnRevive.hidden=!reviveAvailable||!SDK.ready||!isMarathon;
+        dom.btnDoubleScore.hidden=!isMarathon||!SDK.ready||payload.score===0||scoreDoubled;
     }
 
     // ===== Возрождение =====
     async function tryRevive() {
         if (!reviveAvailable) return;
+        dom.btnRevive.disabled = true;
         const result = await SDK.showRewarded();
+        dom.btnRevive.disabled = false;
         if (!result.rewarded) {
-            if (result.reason === 'error') showToast(I18N.t('ad_unavailable'), { duration: 1800 });
+            if (result.reason === 'error' || result.reason === 'timeout')
+                showToast(I18N.t('ad_unavailable'), { duration: 1800 });
             return;
         }
         reviveAvailable = false;
         dom.btnRevive.hidden = true;
-        if (!game.revive()) return;
+        if (!game.revive() || game.state !== 'running') {
+            showOverlay(dom.overlayGameOver);
+            return;
+        }
         hideOverlays();
         setPauseButton(true);
+        refreshStats();
+        startElapsedTimer();
         SDK.gameplayStart();
+        Audio.unlock();
     }
     async function tryDoubleScore() {
         if (scoreDoubled || !SDK.ready) return;
+        dom.btnDoubleScore.disabled = true;
         const result = await SDK.showRewarded();
+        dom.btnDoubleScore.disabled = false;
         if (!result.rewarded) {
-            if (result.reason === 'error') showToast(I18N.t('ad_unavailable'), { duration: 1800 });
+            if (result.reason === 'error' || result.reason === 'timeout')
+                showToast(I18N.t('ad_unavailable'), { duration: 1800 });
             return;
         }
         scoreDoubled = true;
@@ -810,6 +841,28 @@
             dom.finalBest.textContent = doubled.toLocaleString();
             dom.rowFinalBest.classList.add("is-record");
             SDK.submitScore(doubled).catch(() => {});
+        }
+    }
+
+    async function tryBlastDoubleScore() {
+        if (blastScoreDoubled || !SDK.ready) return;
+        dom.btnBlastDoubleScore.disabled = true;
+        const result = await SDK.showRewarded();
+        dom.btnBlastDoubleScore.disabled = false;
+        if (!result.rewarded) {
+            if (result.reason === 'error' || result.reason === 'timeout')
+                showToast(I18N.t('ad_unavailable'), { duration: 1800 });
+            return;
+        }
+        blastScoreDoubled = true;
+        dom.btnBlastDoubleScore.hidden = true;
+        const doubled = blastLastScore * 2;
+        dom.blastGoScore.textContent = doubled.toLocaleString();
+        const prev = parseInt(Storage.get(BLAST_BEST_KEY)) || 0;
+        if (doubled > prev) {
+            Storage.set({ [BLAST_BEST_KEY]: doubled });
+            dom.blastGoBest.textContent = doubled.toLocaleString();
+            if (dom.rowBlastBest) dom.rowBlastBest.classList.add('is-record');
         }
     }
 
@@ -952,6 +1005,7 @@
         dom.modeCardClassic.addEventListener("click",()=>setMenuMode('classic'));
         dom.modeCardBlast.addEventListener("click",()=>setMenuMode('blast'));
         dom.btnBlastMenu.addEventListener("click",()=>{ BlastGame.over=true; SDK.gameplayStop(); renderStreakBadge(); renderLevelGrid(); showOverlay(dom.overlayMenu); });
+        dom.btnBlastDoubleScore.addEventListener("click",()=>tryBlastDoubleScore());
         dom.btnBlastRetry.addEventListener("click",()=>startBlast());
         dom.btnBlastGoMenu.addEventListener("click",()=>{ renderStreakBadge(); renderLevelGrid(); showOverlay(dom.overlayMenu); });
         dom.btnLeaderboard.addEventListener("click",()=>showLeaderboard(dom.overlayMenu));

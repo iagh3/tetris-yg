@@ -19,8 +19,10 @@
         lang: null,
         deviceType: "desktop", // 'desktop' | 'mobile' | 'tablet' | 'tv'
         _lastInterstitial: 0,
+        _lastAdClosed: 0,   // timestamp of last ad close — enforces gap before next rewarded
         _onAdvShow: null,
         _onAdvHide: null,
+        _adActive: false,   // true while any fullscreen/rewarded ad is open
 
         async init() {
             if (typeof root.YaGames === "undefined") {
@@ -113,6 +115,7 @@
         /**
          * Показывает полноэкранную межуровневую рекламу.
          * Возвращает Promise<{shown:boolean, reason?:string}>.
+         * Таймаут 8 с — защита от зависания, если SDK не вызовет колбэк.
          */
         showInterstitial() {
             return new Promise((resolve) => {
@@ -122,58 +125,150 @@
                 if (now - this._lastInterstitial < INTERSTITIAL_COOLDOWN_MS) {
                     return resolve({ shown: false, reason: "cooldown" });
                 }
-                let opened = false;
+                let settled = false;
+                let advOpened = false;
+                let loadTimer = null;
+                let safetyTimer = null;
+                const settle = (val) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(loadTimer);
+                    clearTimeout(safetyTimer);
+                    if (advOpened) {
+                        // Record close time so waitForAdSlot enforces the 2 s gap.
+                        // Resolve immediately so buttons appear as soon as the ad closes.
+                        // Short grace keeps _adActive true if the user clicks too fast.
+                        this._lastAdClosed = Date.now();
+                        setTimeout(() => { this._adActive = false; }, 500);
+                    } else {
+                        this._adActive = false;
+                    }
+                    resolve(val);
+                };
+                // Pre-mark the ad slot as busy BEFORE the call so that showRewarded
+                // waits even if Revive is clicked before onOpen fires.
+                this._adActive = true;
+                loadTimer = setTimeout(() => {
+                    if (!advOpened) settle({ shown: false, reason: "timeout" });
+                }, 8000);
                 try {
                     this.ysdk.adv.showFullscreenAdv({
                         callbacks: {
                             onOpen: () => {
-                                opened = true;
+                                advOpened = true;
                                 this._lastInterstitial = Date.now();
                                 this._onAdvShow && this._onAdvShow();
+                                safetyTimer = setTimeout(() => {
+                                    this._onAdvHide && this._onAdvHide();
+                                    settle({ shown: true, reason: "safety-timeout" });
+                                }, 300000);
                             },
                             onClose: () => {
-                                this._onAdvHide && this._onAdvHide();
-                                resolve({ shown: opened });
+                                if (advOpened) this._onAdvHide && this._onAdvHide();
+                                settle({ shown: advOpened });
                             },
                             onError: (err) => {
-                                this._onAdvHide && this._onAdvHide();
-                                resolve({ shown: false, reason: "error", err });
+                                if (advOpened) this._onAdvHide && this._onAdvHide();
+                                settle({ shown: false, reason: "error", err });
                             },
                         },
                     });
                 } catch (e) {
-                    resolve({ shown: false, reason: "exception" });
+                    settle({ shown: false, reason: "exception" });
                 }
             });
         },
 
         /**
          * Показывает rewarded-видео.
-         * Resolve: { rewarded: boolean, reason: 'watched'|'declined'|'error'|'no-sdk' }
+         * Resolve: { rewarded: boolean, reason: 'watched'|'declined'|'error'|'no-sdk'|'timeout' }
          */
         showRewarded() {
             return new Promise((resolve) => {
                 if (!this.ready) return resolve({ rewarded: false, reason: 'no-sdk' });
-                let rewarded = false;
-                let opened = false;
-                try {
-                    this.ysdk.adv.showRewardedVideo({
-                        callbacks: {
-                            onOpen: () => { opened = true; this._onAdvShow && this._onAdvShow(); },
-                            onRewarded: () => { rewarded = true; },
-                            onClose: () => {
-                                this._onAdvHide && this._onAdvHide();
-                                resolve({ rewarded, reason: rewarded ? 'watched' : 'declined' });
-                            },
-                            onError: () => {
-                                this._onAdvHide && this._onAdvHide();
-                                resolve({ rewarded: false, reason: 'error' });
-                            },
+
+                // Wait until the SDK's internal ad lock is released.
+                // Two conditions must both be true:
+                //   1. _adActive is false (no ad currently open)
+                //   2. at least 2 s have passed since the last ad closed
+                // This prevents "Another ad already opened" regardless of how quickly
+                // the user clicks a rewarded-video button after an interstitial.
+                const MIN_GAP_MS = 2000;
+                const waitForAdSlot = (cb) => {
+                    const ready = () =>
+                        !this._adActive && (Date.now() - this._lastAdClosed) >= MIN_GAP_MS;
+                    if (ready()) { cb(); return; }
+                    let waited = 0;
+                    const poll = setInterval(() => {
+                        waited += 100;
+                        if (ready() || waited >= 12000) {
+                            clearInterval(poll);
+                            cb();
+                        }
+                    }, 100);
+                };
+
+                waitForAdSlot(() => {
+                    let settled = false;
+                    let rewarded = false;
+                    let advOpened = false;
+                    let loadTimer = null;
+                    let safetyTimer = null;
+                    const settle = (val) => {
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(loadTimer);
+                        clearTimeout(safetyTimer);
+                        if (advOpened) this._lastAdClosed = Date.now();
+                        this._adActive = false;
+                        // Small delay so onRewarded fires before resolve if SDK sends it after onClose
+                        setTimeout(() => resolve(val), 200);
+                    };
+
+                    const callbacks = {
+                        onOpen: () => {
+                            if (settled) return; // stale callback after a retry resolved early
+                            advOpened = true;
+                            this._adActive = true;
+                            this._onAdvShow && this._onAdvShow();
+                            safetyTimer = setTimeout(() => {
+                                if (advOpened) this._onAdvHide && this._onAdvHide();
+                                settle({ rewarded: false, reason: 'timeout' });
+                            }, 240000);
                         },
-                    });
-                } catch (_) {
-                    resolve({ rewarded: false, reason: 'error' });
-                }
+                        onRewarded: () => { rewarded = true; },
+                        onClose: () => {
+                            if (advOpened) this._onAdvHide && this._onAdvHide();
+                            settle({ rewarded, reason: rewarded ? 'watched' : 'declined' });
+                        },
+                        onError: () => {
+                            if (advOpened) this._onAdvHide && this._onAdvHide();
+                            settle({ rewarded: false, reason: 'error' });
+                        },
+                    };
+
+                    // Retry on "already opened": the SDK releases its internal ad lock
+                    // asynchronously after onClose, so we may need a few attempts.
+                    const tryShow = (attempt) => {
+                        if (settled) return; // promise already resolved, don't call SDK again
+                        try {
+                            this.ysdk.adv.showRewardedVideo({ callbacks });
+                            // SDK accepted the call — start the "never opened" watchdog.
+                            loadTimer = setTimeout(() => {
+                                if (!advOpened) settle({ rewarded: false, reason: 'timeout' });
+                            }, 8000);
+                        } catch (e) {
+                            const conflict = e && typeof e.message === 'string' &&
+                                e.message.toLowerCase().includes('already opened');
+                            if (conflict && attempt < 6) {
+                                setTimeout(() => tryShow(attempt + 1), 700);
+                            } else {
+                                settle({ rewarded: false, reason: 'error' });
+                            }
+                        }
+                    };
+                    tryShow(0);
+                });
             });
         },
 

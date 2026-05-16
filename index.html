@@ -291,36 +291,118 @@
 
                 <!-- Выбор режима игры -->
                 <div class="mode-picker" id="modePicker">
-                    <button class="mode-card mode-card--active" id="modeCardClassic" type="button">
+                    <button
+                        class="mode-card mode-card--active"
+                        id="modeCardClassic"
+                        type="button"
+                    >
                         <span class="mode-card__ico">
                             <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <rect x="1" y="1" width="8" height="8" rx="1.5"/>
-                                <rect x="1" y="11" width="8" height="8" rx="1.5"/>
-                                <rect x="11" y="11" width="8" height="8" rx="1.5"/>
+                                <rect
+                                    x="1"
+                                    y="1"
+                                    width="8"
+                                    height="8"
+                                    rx="1.5"
+                                />
+                                <rect
+                                    x="1"
+                                    y="11"
+                                    width="8"
+                                    height="8"
+                                    rx="1.5"
+                                />
+                                <rect
+                                    x="11"
+                                    y="11"
+                                    width="8"
+                                    height="8"
+                                    rx="1.5"
+                                />
                             </svg>
                         </span>
                         <span class="mode-card__body">
-                            <span class="mode-card__name" data-i18n="mode_classic">Тетрис</span>
-                            <span class="mode-card__desc" data-i18n="mode_classic_desc">Падающие фигуры</span>
+                            <span
+                                class="mode-card__name"
+                                data-i18n="mode_classic"
+                                >Тетрис</span
+                            >
+                            <span
+                                class="mode-card__desc"
+                                data-i18n="mode_classic_desc"
+                                >Падающие фигуры</span
+                            >
                         </span>
                     </button>
                     <button class="mode-card" id="modeCardBlast" type="button">
                         <span class="mode-card__ico">
                             <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <rect x="1"  y="1"  width="5" height="5" rx="1"/>
-                                <rect x="8"  y="1"  width="5" height="5" rx="1" opacity=".45"/>
-                                <rect x="15" y="1"  width="5" height="5" rx="1"/>
-                                <rect x="1"  y="8"  width="5" height="5" rx="1" opacity=".45"/>
-                                <rect x="8"  y="8"  width="5" height="5" rx="1"/>
-                                <rect x="15" y="8"  width="5" height="5" rx="1" opacity=".45"/>
-                                <rect x="1"  y="15" width="5" height="5" rx="1"/>
-                                <rect x="8"  y="15" width="5" height="5" rx="1"/>
-                                <rect x="15" y="15" width="5" height="5" rx="1" opacity=".45"/>
+                                <rect x="1" y="1" width="5" height="5" rx="1" />
+                                <rect
+                                    x="8"
+                                    y="1"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                    opacity=".45"
+                                />
+                                <rect
+                                    x="15"
+                                    y="1"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                />
+                                <rect
+                                    x="1"
+                                    y="8"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                    opacity=".45"
+                                />
+                                <rect x="8" y="8" width="5" height="5" rx="1" />
+                                <rect
+                                    x="15"
+                                    y="8"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                    opacity=".45"
+                                />
+                                <rect
+                                    x="1"
+                                    y="15"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                />
+                                <rect
+                                    x="8"
+                                    y="15"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                />
+                                <rect
+                                    x="15"
+                                    y="15"
+                                    width="5"
+                                    height="5"
+                                    rx="1"
+                                    opacity=".45"
+                                />
                             </svg>
                         </span>
                         <span class="mode-card__body">
-                            <span class="mode-card__name" data-i18n="mode_blast">Block Blast</span>
-                            <span class="mode-card__desc" data-i18n="mode_blast_desc">Расставляй фигуры</span>
+                            <span class="mode-card__name" data-i18n="mode_blast"
+                                >Block Blast</span
+                            >
+                            <span
+                                class="mode-card__desc"
+                                data-i18n="mode_blast_desc"
+                                >Расставляй фигуры</span
+                            >
                         </span>
                     </button>
                 </div>
@@ -351,10 +433,22 @@
         <div class="overlay overlay--screen" id="overlayBlast">
             <div class="blast-layout">
                 <div class="blast-header">
-                    <button class="iconbtn" id="btnBlastMenu" type="button" aria-label="Меню">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M19 12H5M12 5l-7 7 7 7"/>
+                    <button
+                        class="iconbtn"
+                        id="btnBlastMenu"
+                        type="button"
+                        aria-label="Меню"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M19 12H5M12 5l-7 7 7 7" />
                         </svg>
                     </button>
                     <div class="blast-score-block">
@@ -380,19 +474,49 @@
         <!-- 3. Block Blast — конец игры -->
         <div class="overlay" id="overlayBlastOver">
             <div class="overlay__panel">
-                <h2 class="overlay__heading" data-i18n="game_over">Игра окончена</h2>
+                <h2 class="overlay__heading" data-i18n="game_over">
+                    Игра окончена
+                </h2>
                 <div class="finalstats">
                     <div class="finalstats__row">
-                        <span data-i18n="score">Счёт</span>
-                        <strong id="blastGoScore">0</strong>
+                        <span class="finalstats__label" data-i18n="score"
+                            >Счёт</span
+                        >
+                        <span class="finalstats__value" id="blastGoScore"
+                            >0</span
+                        >
                     </div>
-                    <div class="finalstats__row">
-                        <span data-i18n="best">Лучший</span>
-                        <strong id="blastGoBest">0</strong>
+                    <div class="finalstats__row" id="rowBlastBest">
+                        <span class="finalstats__label" data-i18n="best"
+                            >Лучший</span
+                        >
+                        <span class="finalstats__value" id="blastGoBest"
+                            >0</span
+                        >
                     </div>
                 </div>
-                <button class="btn btn--primary" id="btnBlastRetry" data-i18n="play_again">Ещё раз</button>
-                <button class="btn btn--ghost" id="btnBlastGoMenu" data-i18n="to_menu">В меню</button>
+                <button
+                    class="btn btn--accent"
+                    id="btnBlastDoubleScore"
+                    data-i18n="double_score"
+                    hidden
+                >
+                    Удвоить счёт (реклама)
+                </button>
+                <button
+                    class="btn btn--primary"
+                    id="btnBlastRetry"
+                    data-i18n="play_again"
+                >
+                    Ещё раз
+                </button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnBlastGoMenu"
+                    data-i18n="to_menu"
+                >
+                    В меню
+                </button>
             </div>
         </div>
 

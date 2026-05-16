@@ -334,11 +334,13 @@
             this.state = "running";
             this.emit("stateChanged");
         }
-        // Public revive: clear top visible rows and spawn new piece after game over.
+        // Public revive: clear vanish rows + top visible rows, then spawn.
         revive() {
             if (this.state !== "over") return false;
-            for (let i = 0; i < 4; i++) {
-                this.grid[this.vanishRows + i] = new Array(this.cols).fill(null);
+            // Clear vanish rows (0..vanishRows-1) AND top 4 visible rows so _spawn never
+            // hits an immediate block-out regardless of how high the stack was.
+            for (let i = 0; i < this.vanishRows + 4; i++) {
+                this.grid[i] = new Array(this.cols).fill(null);
             }
             this.state = "running";
             this._spawn();
