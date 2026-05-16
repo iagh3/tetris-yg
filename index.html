@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ru" data-theme="neon">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+        />
+        <meta name="theme-color" content="#15171C" />
+        <meta
+            name="description"
+            content="Классический тетрис с современной механикой: SRS, hold, hard drop, T-spin. Игра для Яндекс.Игр."
+        />
+        <meta property="og:type"        content="website" />
+        <meta property="og:title"       content="Тетрис" />
+        <meta property="og:description" content="Классический тетрис с современной механикой: SRS, hold, hard drop, T-spin." />
+        <title>Тетрис</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+
+        <script src="https://yandex.ru/games/sdk/v2"></script>
+    </head>
+    <body>
+        <!-- Загрузочный экран -->
+        <div id="boot" class="boot">
+            <div class="boot__logo">Тетрис</div>
+            <div class="boot__bar"><div class="boot__bar-fill"></div></div>
+        </div>
+
+        <!-- Основное приложение -->
+        <main class="app" aria-hidden="true">
+            <header class="topbar">
+                <div class="brand">
+                    <svg
+                        class="brand__mark"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <rect x="2" y="2" width="9" height="9" rx="1.5"></rect>
+                        <rect x="13" y="2" width="9" height="9" rx="1.5"></rect>
+                        <rect x="2" y="13" width="9" height="9" rx="1.5"></rect>
+                    </svg>
+                    <span class="brand__title" data-i18n="title">Тетрис</span>
+                </div>
+                <div class="topbar__actions">
+                    <button
+                        class="iconbtn"
+                        id="btnLang"
+                        type="button"
+                        aria-label="Язык"
+                    >
+                        <span id="langLabel">RU</span>
+                    </button>
+                    <button
+                        class="iconbtn"
+                        id="btnMute"
+                        type="button"
+                        aria-label="Звук"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"
+                            />
+                        </svg>
+                    </button>
+                    <button
+                        class="iconbtn"
+                        id="btnPause"
+                        type="button"
+                        aria-label="Пауза"
+                        disabled
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="6" y="5" width="4" height="14" rx="1" />
+                            <rect x="14" y="5" width="4" height="14" rx="1" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <section class="play">
+                <aside class="rail rail--left">
+                    <div class="card">
+                        <div class="card__label" data-i18n="hold">Hold</div>
+                        <canvas
+                            id="holdCanvas"
+                            class="mini-canvas"
+                            width="120"
+                            height="120"
+                        ></canvas>
+                    </div>
+                    <div class="card stats">
+                        <div class="stat">
+                            <div class="stat__label" data-i18n="score">Счёт</div>
+                            <div class="stat__value" id="statScore">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__label" data-i18n="best">Лучший</div>
+                            <div class="stat__value" id="statBest">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__label" data-i18n="lines">Линии</div>
+                            <!-- В режиме уровня показывает прогресс: 15/20 -->
+                            <div class="stat__row">
+                                <div class="stat__value" id="statLines">0</div>
+                                <div
+                                    class="stat__goal"
+                                    id="statLinesGoal"
+                                    hidden
+                                >/0</div>
+                            </div>
+                            <div class="stat__bar">
+                                <div
+                                    class="stat__bar-fill"
+                                    id="levelBarFill"
+                                ></div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__label" data-i18n="level">Уровень</div>
+                            <div class="stat__value" id="statLevel">1</div>
+                        </div>
+                        <div class="stat" id="elapsedStat" hidden>
+                            <div class="stat__label" data-i18n="time">Время</div>
+                            <div class="stat__value" id="statElapsed">0:00</div>
+                        </div>
+                        <div class="stat" id="timerStat" hidden>
+                            <div class="stat__label" data-i18n="time">Время</div>
+                            <div class="stat__value" id="statTimer">1:30</div>
+                            <div class="stat__bar">
+                                <div class="stat__bar-fill" id="timerBarFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="playfield" id="playfield">
+                    <canvas id="boardCanvas"></canvas>
+                    <div
+                        class="playfield__toast"
+                        id="toast"
+                        aria-live="polite"
+                    ></div>
+                </div>
+
+                <aside class="rail rail--right">
+                    <div class="card">
+                        <div class="card__label" data-i18n="next">Очередь</div>
+                        <canvas
+                            id="nextCanvas"
+                            class="mini-canvas"
+                            width="120"
+                            height="380"
+                        ></canvas>
+                    </div>
+                </aside>
+            </section>
+
+            <!-- 7 кнопок: hold · ← · ↺ · ↓ · ↻ · → · ⤓ -->
+            <footer class="touchpad" id="touchpad" aria-hidden="true">
+                <button class="tbtn" data-act="hold" aria-label="Hold">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18" />
+                    </svg>
+                </button>
+                <button class="tbtn" data-act="left" aria-label="Влево">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15 6l-6 6 6 6" />
+                    </svg>
+                </button>
+                <button
+                    class="tbtn"
+                    data-act="rotateCCW"
+                    aria-label="Поворот против часовой"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 14l-4-4 4-4M5 10h8a5 5 0 0 1 5 5v3" />
+                    </svg>
+                </button>
+                <button class="tbtn" data-act="softDrop" aria-label="Вниз">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <button
+                    class="tbtn"
+                    data-act="rotateCW"
+                    aria-label="Поворот по часовой"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15 14l4-4-4-4M19 10h-8a5 5 0 0 0-5 5v3" />
+                    </svg>
+                </button>
+                <button class="tbtn" data-act="right" aria-label="Вправо">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 6l6 6-6 6" />
+                    </svg>
+                </button>
+                <button
+                    class="tbtn tbtn--accent"
+                    data-act="hardDrop"
+                    aria-label="Сброс"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 4v13M7 13l5 5 5-5M4 21h16" />
+                    </svg>
+                </button>
+            </footer>
+        </main>
+
+        <!-- ============ ОВЕРЛЕИ ============ -->
+
+        <!-- 1. Главное меню -->
+        <div class="overlay overlay--screen" id="overlayMenu">
+            <canvas class="menu-bg" id="menuBg"></canvas>
+            <div class="menu-corner">
+                <button class="iconbtn" id="btnOpenSettings" type="button" aria-label="Настройки">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="iconbtn" id="btnMuteMenu" type="button" aria-label="Звук">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>
+                    </svg>
+                </button>
+                <button class="iconbtn" id="btnLangMenu" type="button" aria-label="Язык">
+                    <span id="langLabelMenu">RU</span>
+                </button>
+            </div>
+            <div class="menu-content">
+                <h1 class="menu-logo">
+                    <span data-i18n="title_a">Тет</span><span
+                        class="accent"
+                        data-i18n="title_b"
+                        >рис</span
+                    >
+                </h1>
+                <div id="streakBadge" class="streak-badge" hidden></div>
+                <button
+                    class="btn btn--primary btn--lg"
+                    id="btnMarathon"
+                    data-i18n="marathon"
+                >Играть</button>
+                <button
+                    class="btn btn--menu btn--with-badge"
+                    id="btnLevels"
+                >
+                    <span data-i18n="levels">Уровни</span>
+                    <span class="btn__badge" id="levelsProgress"></span>
+                </button>
+                <button
+                    class="btn btn--menu"
+                    id="btnLeaderboard"
+                    data-i18n="leaderboard"
+                >Таблица лидеров</button>
+                <p class="hint" id="controlsHint"></p>
+            </div>
+        </div>
+
+        <!-- 2. Выбор уровня -->
+        <div class="overlay" id="overlayLevelSelect">
+            <div class="overlay__panel overlay__panel--lg">
+                <h2 class="overlay__heading" data-i18n="levels">Уровни</h2>
+                <!-- Карточки генерируются из JS -->
+                <div class="level-grid" id="levelGrid"></div>
+                <button
+                    class="btn btn--ghost"
+                    id="btnLevelBack"
+                    data-i18n="back"
+                >Назад</button>
+            </div>
+        </div>
+
+        <!-- 3. Пауза -->
+        <div class="overlay" id="overlayPause">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" data-i18n="paused">Пауза</h2>
+                <button
+                    class="btn btn--primary"
+                    id="btnResume"
+                    data-i18n="resume"
+                >Продолжить</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnRestartFromPause"
+                    data-i18n="restart"
+                >Заново</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnPauseLeaderboard"
+                    data-i18n="leaderboard"
+                >Таблица лидеров</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnPauseMenu"
+                    data-i18n="to_menu"
+                >В меню</button>
+            </div>
+        </div>
+
+        <!-- 4. Уровень пройден -->
+        <div class="overlay" id="overlayLevelComplete">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" id="lcHeading">Уровень пройден!</h2>
+                <div class="stars-display" id="lcStars"></div>
+                <div class="finalstats">
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="score"
+                        >Счёт</span>
+                        <span
+                            class="finalstats__value"
+                            id="lcScore"
+                        >0</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="lines"
+                        >Линии</span>
+                        <span
+                            class="finalstats__value"
+                            id="lcLines"
+                        >0</span>
+                    </div>
+                </div>
+                <button
+                    class="btn btn--primary"
+                    id="btnNextLevel"
+                    data-i18n="next_level"
+                >Следующий уровень</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnRetryLevel"
+                    data-i18n="retry_level"
+                >Ещё раз</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnToMenuFromLC"
+                    data-i18n="to_menu"
+                >В меню</button>
+            </div>
+        </div>
+
+        <!-- 5. Конец игры (марафон + провал уровня) -->
+        <div class="overlay" id="overlayGameOver">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" id="goHeading" data-i18n="game_over">
+                    Игра окончена
+                </h2>
+                <div class="finalstats">
+                    <div class="finalstats__row" id="rowFinalBest">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="best"
+                        >Лучший</span>
+                        <span class="finalstats__value" id="finalBest">0</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="score"
+                        >Счёт</span>
+                        <span class="finalstats__value" id="finalScore">0</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="lines"
+                        >Линии</span>
+                        <span
+                            class="finalstats__value"
+                            id="finalLines"
+                        >0</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="level"
+                        >Уровень</span>
+                        <span
+                            class="finalstats__value"
+                            id="finalLevel"
+                        >1</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="time"
+                        >Время</span>
+                        <span
+                            class="finalstats__value"
+                            id="finalTime"
+                        >0:00</span>
+                    </div>
+                    <div class="finalstats__row">
+                        <span
+                            class="finalstats__label"
+                            data-i18n="pps"
+                        >Фигур/с</span>
+                        <span class="finalstats__value" id="finalPPS">—</span>
+                    </div>
+                </div>
+                <button
+                    class="btn btn--accent"
+                    id="btnRevive"
+                    data-i18n="revive"
+                    hidden
+                >Продолжить за рекламу</button>
+                <!-- Только в марафоне -->
+                <button
+                    class="btn btn--accent"
+                    id="btnDoubleScore"
+                    data-i18n="double_score"
+                    hidden
+                >Удвоить счёт (реклама)</button>
+                <button
+                    class="btn btn--primary"
+                    id="btnRetry"
+                    data-i18n="play_again"
+                >Сыграть ещё</button>
+                <!-- Только в марафоне -->
+                <button
+                    class="btn btn--ghost"
+                    id="btnGOLeaderboard"
+                    data-i18n="leaderboard"
+                    hidden
+                >Таблица лидеров</button>
+                <button
+                    class="btn btn--ghost"
+                    id="btnGoMenu"
+                    data-i18n="to_menu"
+                >В меню</button>
+            </div>
+        </div>
+
+        <!-- 6. Настройки -->
+        <div class="overlay" id="overlaySettings">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" data-i18n="settings">Настройки</h2>
+                <div class="setting-group">
+                    <div class="setting-group__label" data-i18n="theme_label">Тема</div>
+                    <div class="theme-picker">
+                        <!-- Neon: electric glow, dark near-black bg -->
+                        <button class="theme-card" id="themeNeon" data-theme-select="neon">
+                            <svg class="theme-card__preview" viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <filter id="tneon-glow" x="-25%" y="-25%" width="150%" height="150%">
+                                        <feGaussianBlur stdDeviation="1.8" result="b"/>
+                                        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                                    </filter>
+                                </defs>
+                                <rect width="48" height="64" fill="#0c0e1a"/>
+                                <g filter="url(#tneon-glow)">
+                                    <rect x="8" y="0" width="7" height="7" fill="#e040fb" rx="1"/>
+                                    <rect x="0" y="8" width="7" height="7" fill="#e040fb" rx="1"/>
+                                    <rect x="8" y="8" width="7" height="7" fill="#e040fb" rx="1"/>
+                                    <rect x="16" y="8" width="7" height="7" fill="#e040fb" rx="1"/>
+                                    <rect x="24" y="16" width="7" height="7" fill="#ffe040" rx="1"/>
+                                    <rect x="32" y="16" width="7" height="7" fill="#ffe040" rx="1"/>
+                                    <rect x="24" y="24" width="7" height="7" fill="#ffe040" rx="1"/>
+                                    <rect x="32" y="24" width="7" height="7" fill="#ffe040" rx="1"/>
+                                    <rect x="0" y="32" width="7" height="7" fill="#2979ff" rx="1"/>
+                                    <rect x="24" y="32" width="7" height="7" fill="#ff4081" rx="1"/>
+                                    <rect x="32" y="32" width="7" height="7" fill="#ff4081" rx="1"/>
+                                    <rect x="0" y="40" width="7" height="7" fill="#2979ff" rx="1"/>
+                                    <rect x="8" y="40" width="7" height="7" fill="#2979ff" rx="1"/>
+                                    <rect x="16" y="40" width="7" height="7" fill="#2979ff" rx="1"/>
+                                    <rect x="32" y="40" width="7" height="7" fill="#ff4081" rx="1"/>
+                                    <rect x="40" y="40" width="7" height="7" fill="#ff4081" rx="1"/>
+                                    <rect x="0" y="48" width="7" height="7" fill="#00e5ff" rx="1"/>
+                                    <rect x="8" y="48" width="7" height="7" fill="#00e5ff" rx="1"/>
+                                    <rect x="16" y="48" width="7" height="7" fill="#00e5ff" rx="1"/>
+                                    <rect x="24" y="48" width="7" height="7" fill="#00e5ff" rx="1"/>
+                                </g>
+                            </svg>
+                            <span data-i18n="theme_neon">Неон</span>
+                        </button>
+                        <!-- Minimal: flat, no glow, blue-tinted dark bg -->
+                        <button class="theme-card" id="themeMinimal" data-theme-select="minimal">
+                            <svg class="theme-card__preview" viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="48" height="64" fill="#11131a"/>
+                                <rect x="8" y="0" width="7" height="7" fill="#c084fc" rx="1"/>
+                                <rect x="0" y="8" width="7" height="7" fill="#c084fc" rx="1"/>
+                                <rect x="8" y="8" width="7" height="7" fill="#c084fc" rx="1"/>
+                                <rect x="16" y="8" width="7" height="7" fill="#c084fc" rx="1"/>
+                                <rect x="24" y="16" width="7" height="7" fill="#fbbf24" rx="1"/>
+                                <rect x="32" y="16" width="7" height="7" fill="#fbbf24" rx="1"/>
+                                <rect x="24" y="24" width="7" height="7" fill="#fbbf24" rx="1"/>
+                                <rect x="32" y="24" width="7" height="7" fill="#fbbf24" rx="1"/>
+                                <rect x="0" y="32" width="7" height="7" fill="#818cf8" rx="1"/>
+                                <rect x="24" y="32" width="7" height="7" fill="#f87171" rx="1"/>
+                                <rect x="32" y="32" width="7" height="7" fill="#f87171" rx="1"/>
+                                <rect x="0" y="40" width="7" height="7" fill="#818cf8" rx="1"/>
+                                <rect x="8" y="40" width="7" height="7" fill="#818cf8" rx="1"/>
+                                <rect x="16" y="40" width="7" height="7" fill="#818cf8" rx="1"/>
+                                <rect x="32" y="40" width="7" height="7" fill="#f87171" rx="1"/>
+                                <rect x="40" y="40" width="7" height="7" fill="#f87171" rx="1"/>
+                                <rect x="0" y="48" width="7" height="7" fill="#38bdf8" rx="1"/>
+                                <rect x="8" y="48" width="7" height="7" fill="#38bdf8" rx="1"/>
+                                <rect x="16" y="48" width="7" height="7" fill="#38bdf8" rx="1"/>
+                                <rect x="24" y="48" width="7" height="7" fill="#38bdf8" rx="1"/>
+                            </svg>
+                            <span data-i18n="theme_minimal">Минимал</span>
+                        </button>
+                        <!-- Wood: very dark brown bg, earth tones, organic rounded corners, grain texture -->
+                        <button class="theme-card" id="themeWood" data-theme-select="wood">
+                            <svg class="theme-card__preview" viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <pattern id="twood-grain" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-22)">
+                                        <line x1="0" y1="0" x2="0" y2="12" stroke="#e07820" stroke-opacity="0.1" stroke-width="2.5"/>
+                                        <line x1="6" y1="0" x2="6" y2="12" stroke="#e07820" stroke-opacity="0.05" stroke-width="1"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="48" height="64" fill="#130800"/>
+                                <rect width="48" height="64" fill="url(#twood-grain)"/>
+                                <rect x="8" y="0" width="7" height="7" fill="#a04828" rx="2"/>
+                                <rect x="0" y="8" width="7" height="7" fill="#a04828" rx="2"/>
+                                <rect x="8" y="8" width="7" height="7" fill="#a04828" rx="2"/>
+                                <rect x="16" y="8" width="7" height="7" fill="#a04828" rx="2"/>
+                                <rect x="24" y="16" width="7" height="7" fill="#e07820" rx="2"/>
+                                <rect x="32" y="16" width="7" height="7" fill="#e07820" rx="2"/>
+                                <rect x="24" y="24" width="7" height="7" fill="#e07820" rx="2"/>
+                                <rect x="32" y="24" width="7" height="7" fill="#e07820" rx="2"/>
+                                <rect x="0" y="32" width="7" height="7" fill="#b86830" rx="2"/>
+                                <rect x="24" y="32" width="7" height="7" fill="#c83820" rx="2"/>
+                                <rect x="32" y="32" width="7" height="7" fill="#c83820" rx="2"/>
+                                <rect x="0" y="40" width="7" height="7" fill="#b86830" rx="2"/>
+                                <rect x="8" y="40" width="7" height="7" fill="#b86830" rx="2"/>
+                                <rect x="16" y="40" width="7" height="7" fill="#b86830" rx="2"/>
+                                <rect x="32" y="40" width="7" height="7" fill="#c83820" rx="2"/>
+                                <rect x="40" y="40" width="7" height="7" fill="#c83820" rx="2"/>
+                                <rect x="0" y="48" width="7" height="7" fill="#f0c040" rx="2"/>
+                                <rect x="8" y="48" width="7" height="7" fill="#f0c040" rx="2"/>
+                                <rect x="16" y="48" width="7" height="7" fill="#f0c040" rx="2"/>
+                                <rect x="24" y="48" width="7" height="7" fill="#f0c040" rx="2"/>
+                            </svg>
+                            <span data-i18n="theme_wood">Дерево</span>
+                        </button>
+                        <!-- Retro: PICO-8 navy bg, square pixel blocks, CRT scanlines -->
+                        <button class="theme-card" id="themeRetro" data-theme-select="retro">
+                            <svg class="theme-card__preview" viewBox="0 0 48 64" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <pattern id="tretro-scan" x="0" y="0" width="48" height="2" patternUnits="userSpaceOnUse">
+                                        <rect y="1" width="48" height="1" fill="black" fill-opacity="0.2"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="48" height="64" fill="#1d2b53"/>
+                                <rect x="8" y="0" width="7" height="7" fill="#ff77a8"/>
+                                <rect x="0" y="8" width="7" height="7" fill="#ff77a8"/>
+                                <rect x="8" y="8" width="7" height="7" fill="#ff77a8"/>
+                                <rect x="16" y="8" width="7" height="7" fill="#ff77a8"/>
+                                <rect x="24" y="16" width="7" height="7" fill="#ffec27"/>
+                                <rect x="32" y="16" width="7" height="7" fill="#ffec27"/>
+                                <rect x="24" y="24" width="7" height="7" fill="#ffec27"/>
+                                <rect x="32" y="24" width="7" height="7" fill="#ffec27"/>
+                                <rect x="0" y="32" width="7" height="7" fill="#83769c"/>
+                                <rect x="24" y="32" width="7" height="7" fill="#ff004d"/>
+                                <rect x="32" y="32" width="7" height="7" fill="#ff004d"/>
+                                <rect x="0" y="40" width="7" height="7" fill="#83769c"/>
+                                <rect x="8" y="40" width="7" height="7" fill="#83769c"/>
+                                <rect x="16" y="40" width="7" height="7" fill="#83769c"/>
+                                <rect x="32" y="40" width="7" height="7" fill="#ff004d"/>
+                                <rect x="40" y="40" width="7" height="7" fill="#ff004d"/>
+                                <rect x="0" y="48" width="7" height="7" fill="#29adff"/>
+                                <rect x="8" y="48" width="7" height="7" fill="#29adff"/>
+                                <rect x="16" y="48" width="7" height="7" fill="#29adff"/>
+                                <rect x="24" y="48" width="7" height="7" fill="#29adff"/>
+                                <rect width="48" height="64" fill="url(#tretro-scan)"/>
+                            </svg>
+                            <span data-i18n="theme_retro">Ретро</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-group__label" data-i18n="language">Язык</div>
+                    <div class="setting-group__controls">
+                        <button class="iconbtn" id="btnLangSettings" type="button" aria-label="Язык">
+                            <span id="langLabelSettings">RU</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-group__label" data-i18n="sound_label">Звук</div>
+                    <div class="setting-group__controls">
+                        <button class="iconbtn" id="btnMuteSettings" type="button" aria-label="Звук">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Control mode toggle (hidden on desktop via CSS) -->
+                <div class="setting-group" id="settingCtrlMode">
+                    <div class="setting-group__label" data-i18n="ctrl_label">Управление</div>
+                    <div class="setting-tabs">
+                        <button class="stab" id="ctrlGesture" data-ctrl="gesture" data-i18n="ctrl_gesture">Жесты</button>
+                        <button class="stab" id="ctrlButtons" data-ctrl="buttons" data-i18n="ctrl_buttons">Кнопки</button>
+                    </div>
+                </div>
+<button class="btn btn--ghost" id="btnResetSettings" data-i18n="reset_settings">Сбросить настройки</button>
+                <button class="btn btn--ghost" id="btnSettingsClose" data-i18n="close">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- 6. Лидерборд -->
+        <div class="overlay" id="overlayLeaderboard">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" data-i18n="leaderboard">
+                    Таблица лидеров
+                </h2>
+                <div id="lbList" class="lb-list">
+                    <div class="lb-loading" data-i18n="loading">Загрузка…</div>
+                </div>
+                <button
+                    class="btn btn--ghost"
+                    id="btnLbClose"
+                    data-i18n="close"
+                >Закрыть</button>
+            </div>
+        </div>
+
+        <!-- JS-модули (порядок важен) -->
+        <script src="js/i18n.js"></script>
+        <script src="js/storage.js"></script>
+        <script src="js/sdk.js"></script>
+        <script src="js/audio.js"></script>
+        <script src="js/tetris.js"></script>
+        <script src="js/renderer.js"></script>
+        <script src="js/input.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
