@@ -98,6 +98,7 @@
 html,
 body {
     height: 100%;
+    height: 100dvh; /* dynamic viewport: excludes browser address/nav bars */
     width: 100%;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -371,6 +372,7 @@ canvas {
     justify-content: center;
     align-items: center;
     min-height: 0;
+    touch-action: none; /* prevent browser pan/zoom intercepting pointer events */
 }
 .playfield canvas {
     background: var(--bg-elev);
@@ -767,6 +769,7 @@ canvas {
         background var(--duration) var(--ease),
         color var(--duration) var(--ease),
         transform 80ms var(--ease);
+    touch-action: none;
 }
 .tbtn svg {
     width: 22px;

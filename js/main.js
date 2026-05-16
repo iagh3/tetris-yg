@@ -615,6 +615,7 @@
 
     // ===== Block Blast =====
     function startBlast() {
+        tryFullscreen();
         hideOverlays();
         setPauseButton(false);
         SDK.gameplayStart();
@@ -662,6 +663,7 @@
         if (def.type==="lines_timed") startLevelTimer(def.time);
     }
     function _startGame(startLvl) {
+        tryFullscreen();
         reviveAvailable=true; scoreDoubled=false; gameStartTime=Date.now();
         piecesPlaced=0; sessionMaxCombo=0; lastGameScore=0; lastMilestone=0;
         hideOverlays();
@@ -934,6 +936,13 @@
         });
         game.on("lock",()=>{ piecesPlaced++; Audio.lock(); });
         game.on("gameOver",p=>endGame(p));
+    }
+
+    // ===== Фуллскрин =====
+    function tryFullscreen() {
+        if (!document.fullscreenEnabled) return;
+        if (document.fullscreenElement) return;
+        document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
     }
 
     // ===== Кнопки =====
