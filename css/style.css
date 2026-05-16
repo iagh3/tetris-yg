@@ -107,6 +107,11 @@ body {
 
 body {
     background: var(--bg);
+    /* Tetris-cell grid — 26 px matches typical Tetris block size */
+    background-image:
+        linear-gradient(rgba(255,255,255,0.038) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.038) 1px, transparent 1px);
+    background-size: 26px 26px;
     color: var(--text);
     font-family:
         "Inter",
@@ -654,6 +659,62 @@ canvas {
     border-width: 2px;
 }
 
+/* =====================================================
+   BACKGROUNDS — Tetris cell grid (body) + glow (menu)
+   ===================================================== */
+
+/* Neon: cyan Tetris-cell grid + top/bottom glow on menu */
+[data-theme="neon"] body {
+    background-image:
+        linear-gradient(rgba(0,229,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+[data-theme="neon"] .overlay--screen {
+    background-image:
+        radial-gradient(ellipse 60% 28% at 50% -2%, rgba(0,180,255,0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 110% 55% at 50% 108%, rgba(0,100,220,0.10) 0%, transparent 60%);
+}
+
+/* Minimal: indigo Tetris-cell grid + bottom glow on menu */
+[data-theme="minimal"] body {
+    background-image:
+        linear-gradient(rgba(129,140,248,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(129,140,248,0.06) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+[data-theme="minimal"] .overlay--screen {
+    background-image:
+        radial-gradient(ellipse 80% 40% at 50% 108%, rgba(129,140,248,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 18% at 50% -2%,  rgba(129,140,248,0.07) 0%, transparent 60%);
+}
+
+/* Retro: blue Tetris-cell grid (stronger = pixel art feel) + amber glow on menu */
+[data-theme="retro"] body {
+    background-image:
+        linear-gradient(rgba(41,173,255,0.10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41,173,255,0.10) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+[data-theme="retro"] .overlay--screen {
+    background-image:
+        radial-gradient(ellipse 60% 28% at 50% 55%, rgba(255,236,39,0.09) 0%, transparent 58%),
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.14) 0px, rgba(0,0,0,0.14) 1px, transparent 1px, transparent 4px);
+}
+
+/* Wood: amber Tetris-cell grid + warm glow on menu */
+[data-theme="wood"] body {
+    background-image:
+        linear-gradient(rgba(240,180,64,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,180,64,0.06) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+[data-theme="wood"] .overlay--screen {
+    background-image:
+        radial-gradient(ellipse 80% 40% at 50% 108%, rgba(224,120,32,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 20% at 50% -2%,  rgba(200,100,30,0.06) 0%, transparent 50%);
+}
+
 .playfield__toast {
     position: absolute;
     top: 18%;
@@ -863,14 +924,14 @@ canvas {
 .finalstats {
     background: var(--bg-elev);
     border-radius: 12px;
-    padding: 14px 16px;
-    margin: 4px 0 22px;
+    padding: 2px 16px;
+    margin: 8px 0 22px;
 }
 .finalstats__row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 0;
+    padding: 9px 0;
     border-bottom: 1px solid var(--panel-border);
 }
 .finalstats__row:last-child {
@@ -1097,24 +1158,27 @@ canvas {
 .level-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 20px;
 }
 .level-card {
     background: var(--bg-elev);
     border: 1px solid var(--panel-border);
-    border-radius: var(--radius-md);
-    padding: 10px 4px;
+    border-radius: var(--radius-sm);
+    padding: 8px 3px 6px;
     text-align: center;
     cursor: pointer;
     transition:
         background var(--duration) var(--ease),
         border-color var(--duration) var(--ease),
         transform 80ms var(--ease);
-    display: flex;
-    flex-direction: column;
+    /* grid rows: number / stars (fixed) / type (fixed) */
+    display: grid;
+    grid-template-rows: 1fr 13px 20px;
     align-items: center;
-    gap: 4px;
+    justify-items: center;
+    row-gap: 2px;
+    min-height: 64px;
 }
 .level-card:hover {
     background: var(--accent-soft);
@@ -1127,15 +1191,14 @@ canvas {
     border-color: var(--accent-soft);
 }
 .level-card__num {
-    display: block;
     font-family: "JetBrains Mono", ui-monospace, monospace;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 17px;
     color: var(--text);
     line-height: 1;
+    align-self: center;
 }
 .level-card__best {
-    display: block;
     font-family: "JetBrains Mono", ui-monospace, monospace;
     font-size: 10px;
     font-weight: 500;
@@ -1151,7 +1214,7 @@ canvas {
 
 /* Широкая панель для экрана с сеткой уровней */
 .overlay__panel--lg {
-    max-width: 420px;
+    max-width: 480px;
 }
 
 /* ===== Лидерборд ===== */
@@ -1259,11 +1322,12 @@ canvas {
 /* ===== Карточки уровней: звёзды и цель ===== */
 .level-card__stars {
     display: flex;
-    gap: 1px;
-    font-size: 10px;
+    gap: 2px;
+    font-size: 11px;
     line-height: 1;
-    min-height: 12px;
     align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 .level-card__goal {
     display: block;
@@ -1401,18 +1465,18 @@ canvas {
 
 /* ===== Тип задания в карточке уровня ===== */
 .level-card__type {
-    display: block;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--text-mute);
     text-align: center;
-    line-height: 1.3;
-    max-width: 100%;
+    line-height: 1.25;
+    width: 100%;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    padding: 0 2px;
+    padding: 0 3px;
+    align-self: start;
 }
 .level-card.has-score .level-card__type {
     color: var(--text-dim);
@@ -1423,6 +1487,151 @@ canvas {
     background: var(--danger);
 }
 
+/* ===== Выбор режима игры ===== */
+.mode-picker {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+.mode-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    background: var(--panel);
+    border: 2px solid var(--panel-border);
+    border-radius: var(--radius-md);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background var(--duration) var(--ease),
+        border-color var(--duration) var(--ease),
+        transform 80ms var(--ease);
+}
+.mode-card:hover { background: var(--accent-soft); border-color: var(--accent); }
+.mode-card--active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+.mode-card:active { transform: scale(0.97); }
+.mode-card__ico {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elev);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+.mode-card__ico svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--accent);
+}
+.mode-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.mode-card__name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+}
+.mode-card__desc {
+    font-size: 10px;
+    color: var(--text-mute);
+    line-height: 1.3;
+}
+.mode-card--active .mode-card__name { color: var(--accent); }
+
+/* ===== Block Blast — игровой экран ===== */
+#overlayBlast { padding: 0; }
+
+.blast-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 12px 16px calc(12px + var(--safe-bottom));
+    gap: 10px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.blast-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+    gap: 8px;
+}
+.blast-header-spacer { width: 40px; flex-shrink: 0; }
+
+.blast-score-block { flex: 1; text-align: center; }
+.blast-score {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: clamp(28px, 8vw, 40px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+}
+.blast-best-row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+}
+
+.blast-field {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    width: 100%;
+}
+.blast-field canvas {
+    border-radius: 12px;
+    touch-action: none;
+    display: block;
+    cursor: crosshair;
+}
+
+.blast-tray {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    padding-bottom: 4px;
+}
+.blast-slot {
+    width: 88px;
+    height: 88px;
+    display: block;
+    touch-action: none;
+    cursor: pointer;
+    border-radius: 12px;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    /* prevent text-selection cursor flicker on drag */
+    pointer-events: auto;
+}
+.blast-slot:active { opacity: 0.85; }
+
+/* Responsive tray: on small screens shrink slots a little */
+@media (max-width: 360px) {
+    .blast-slot { width: 76px; height: 76px; }
+    .blast-tray { gap: 8px; }
+}
+
 /* ===== Тревожная пульсация таймера ===== */
 @keyframes timer-pulse {
     0%, 100% { opacity: 1; }
@@ -1431,6 +1640,97 @@ canvas {
 #statTimer.is-danger {
     animation: timer-pulse 800ms ease-in-out infinite;
     color: var(--danger);
+}
+
+/* ============================================================
+   Адаптив — узкий портрет, ландшафт, планшеты
+   ============================================================ */
+
+/* ── Портрет ≤ 360px: компактное меню ── */
+@media (max-width: 360px) {
+    .menu-content { padding: 0 6px; }
+    .menu-logo { font-size: clamp(30px, 10vw, 44px); margin-bottom: 8px; }
+    .streak-badge { margin-bottom: 10px; font-size: 11px; padding: 3px 10px; }
+    .mode-picker { gap: 6px; margin-bottom: 10px; }
+    .mode-card { padding: 8px; gap: 7px; }
+    .mode-card__ico { width: 28px; height: 28px; }
+    .mode-card__ico svg { width: 14px; height: 14px; }
+    .btn--lg { font-size: 14px; padding: 11px 14px; }
+    .btn--menu { font-size: 13px; padding: 10px 12px; margin-bottom: 8px; }
+}
+
+/* ── Ландшафт (высота ≤ 480px): меню, тетрис, Block Blast ── */
+@media (max-height: 480px) and (orientation: landscape) {
+    /* Меню */
+    .menu-logo { font-size: clamp(26px, 7vh, 40px); margin-bottom: 6px; }
+    .menu-content .hint { display: none; }
+    .streak-badge { margin-bottom: 8px; }
+    .mode-picker { margin-bottom: 8px; }
+    .mode-card { padding: 8px 10px; }
+    .btn--lg { padding: 10px 16px; margin-bottom: 8px; }
+    .btn--menu { padding: 9px 14px; margin-bottom: 8px; }
+
+    /* Тетрис — уже рельсы */
+    .play {
+        grid-template-columns: clamp(50px, 10vw, 90px) minmax(0, 1fr) clamp(50px, 10vw, 90px);
+        gap: clamp(4px, 0.8vw, 8px);
+    }
+    #nextCanvas { height: clamp(90px, 17vh, 130px); }
+
+    /* Block Blast — горизонтальная раскладка */
+    .blast-layout {
+        display: grid;
+        grid-template-columns: 80px 1fr 96px;
+        grid-template-rows: 1fr;
+        grid-template-areas: "header field tray";
+        padding: calc(4px + var(--safe-top)) 10px calc(4px + var(--safe-bottom));
+        gap: 8px;
+        max-width: none;
+        align-items: stretch;
+    }
+    .blast-header {
+        grid-area: header;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 4px 0 0;
+        gap: 8px;
+    }
+    .blast-header-spacer { display: none; }
+    .blast-score-block { flex: none; }
+    .blast-score { font-size: 20px; line-height: 1.1; }
+    .blast-best-row { font-size: 10px; margin-top: 2px; }
+    .blast-field { grid-area: field; align-self: stretch; width: 100%; padding: 2px 0; }
+    .blast-tray {
+        grid-area: tray;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        gap: 6px;
+    }
+    .blast-slot { width: 88px; height: 88px; }
+}
+
+/* ── Очень маленький ландшафт (высота ≤ 380px) ── */
+@media (max-height: 380px) and (orientation: landscape) {
+    .blast-layout {
+        grid-template-columns: 68px 1fr 78px;
+        gap: 6px;
+        padding: calc(3px + var(--safe-top)) 8px calc(3px + var(--safe-bottom));
+    }
+    .blast-slot { width: 70px; height: 70px; }
+    .blast-score { font-size: 16px; }
+    .blast-tray { gap: 4px; }
+}
+
+/* ── Планшеты и большие экраны (≥ 768px шир. и ≥ 600px выс.) ── */
+@media (min-width: 768px) and (min-height: 600px) {
+    .blast-layout { max-width: 560px; }
+    .blast-slot { width: 100px; height: 100px; }
+    .blast-tray { gap: 12px; }
+    .overlay__panel--lg { max-width: 560px; }
+    .level-grid { grid-template-columns: repeat(6, 1fr); }
 }
 
 /* ===== Анимация входа в меню ===== */
@@ -1457,7 +1757,18 @@ canvas {
 }
 .setting-group:last-of-type {
     border-bottom: none;
-    margin-bottom: 18px;
+}
+/* Gap between settings groups and action buttons */
+#overlaySettings .setting-group ~ button:first-of-type {
+    margin-top: 18px;
+}
+/* Reset button: subtle danger tint on hover */
+#btnResetSettings {
+    color: var(--text-mute);
+}
+#btnResetSettings:hover {
+    color: var(--danger);
+    border-color: rgba(255, 43, 110, 0.3);
 }
 /* Theme picker and tab groups span full width below their label */
 .setting-group:has(.theme-picker),
@@ -1467,7 +1778,7 @@ canvas {
     gap: 8px;
 }
 .setting-group__label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-dim);
     text-align: left;

@@ -70,6 +70,10 @@
         ctrl_label: "Управление",
         ctrl_gesture: "Жесты",
         ctrl_buttons: "Кнопки",
+        mode_classic: "Тетрис",
+        mode_classic_desc: "Падающие фигуры",
+        mode_blast: "Block Blast",
+        mode_blast_desc: "Расставляй фигуры",
         },
         en: {
             title: "Tetris",
@@ -136,6 +140,10 @@
             ctrl_label: "Controls",
             ctrl_gesture: "Gestures",
             ctrl_buttons: "Buttons",
+            mode_classic: "Tetris",
+            mode_classic_desc: "Falling pieces",
+            mode_blast: "Block Blast",
+            mode_blast_desc: "Place pieces",
         },
     };
 

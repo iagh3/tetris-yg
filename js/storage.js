@@ -7,10 +7,11 @@
     "use strict";
 
     const LOCAL_KEY = "tetris.save.v1";
-    const KEYS = ["best", "totalLines", "totalGames", "maxCombo", "maxLevel", "campaignJson", "streakJson"];
+    const KEYS = ["best", "blastBest", "totalLines", "totalGames", "maxCombo", "maxLevel", "campaignJson", "streakJson"];
 
     const def = () => ({
         best: 0,
+        blastBest: 0,
         totalLines: 0,
         totalGames: 0,
         maxCombo: 0,
@@ -39,7 +40,7 @@
         const out = def();
 
         // Числовые поля — берём максимум
-        ["best", "totalLines", "totalGames", "maxCombo", "maxLevel"].forEach((k) => {
+        ["best", "blastBest", "totalLines", "totalGames", "maxCombo", "maxLevel"].forEach((k) => {
             out[k] = Math.max(Number(a[k]) || 0, Number(b[k]) || 0);
         });
 

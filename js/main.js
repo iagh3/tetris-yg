@@ -8,20 +8,68 @@
 
     // ===== Определения уровней кампании =====
     const LEVEL_DEFS = [
-        { type:"lines",       goal:5,    start:1, s2:400,   s3:900,   ru:"Очисти 5 линий",       en:"Clear 5 lines"    },
-        { type:"lines",       goal:10,   start:1, s2:800,   s3:2000,  ru:"Очисти 10 линий",      en:"Clear 10 lines"   },
-        { type:"lines",       goal:15,   start:2, s2:1500,  s3:3500,  ru:"15 линий · скорость 2",en:"15 lines · lv 2"  },
-        { type:"score",       goal:2000, start:2, s2:2000,  s3:5000,  ru:"Набери 2 000 очков",   en:"Reach 2 000 pts"  },
-        { type:"combo",       goal:2,    start:3, s2:3000,  s3:7000,  ru:"Комбо ×2",             en:"Combo ×2"         },
-        { type:"lines_timed", goal:20,   time:120,start:3,  s2:5000,  s3:11000, ru:"20 линий за 2 мин", en:"20 lines / 2 min"},
-        { type:"tspin",       goal:1,    start:4, s2:6000,  s3:13000, ru:"Сделай T-Spin",        en:"Make a T-Spin"    },
-        { type:"b2b",         goal:1,    start:5, s2:8000,  s3:18000, ru:"Back-to-Back",         en:"Back-to-Back"     },
-        { type:"score",       goal:15000,start:6, s2:15000, s3:30000, ru:"15 000 очков",         en:"15 000 pts"       },
-        { type:"lines",       goal:30,   start:7, s2:22000, s3:45000, ru:"30 линий · скорость 7",en:"30 lines · lv 7"  },
+        // --- Новичок (1–10) ---
+        { type:"lines",       goal:4,    start:1, s2:200,   s3:500,    ru:"Очисти 4 линии",        en:"Clear 4 lines"       },
+        { type:"lines",       goal:6,    start:1, s2:350,   s3:800,    ru:"Очисти 6 линий",        en:"Clear 6 lines"       },
+        { type:"score",       goal:500,  start:1, s2:500,   s3:1200,   ru:"Набери 500 очков",      en:"Reach 500 pts"       },
+        { type:"lines",       goal:10,   start:1, s2:700,   s3:1800,   ru:"Очисти 10 линий",       en:"Clear 10 lines"      },
+        { type:"score",       goal:1000, start:2, s2:1000,  s3:2500,   ru:"Набери 1 000 очков",    en:"Reach 1 000 pts"     },
+        { type:"lines",       goal:12,   start:2, s2:1200,  s3:3000,   ru:"12 линий · скор. 2",    en:"12 lines · lv 2"     },
+        { type:"lines_timed", goal:8,    time:90, start:1,  s2:600,    s3:1500,   ru:"8 линий за 90 сек",  en:"8 lines / 90 sec"    },
+        { type:"combo",       goal:2,    start:2, s2:1500,  s3:3500,   ru:"Комбо ×2",              en:"Combo ×2"            },
+        { type:"score",       goal:2000, start:2, s2:2000,  s3:5000,   ru:"Набери 2 000 очков",    en:"Reach 2 000 pts"     },
+        { type:"lines",       goal:15,   start:2, s2:2000,  s3:5000,   ru:"15 линий · скор. 2",    en:"15 lines · lv 2"     },
+        // --- Лёгкий (11–20) ---
+        { type:"lines_timed", goal:12,   time:90, start:2,  s2:1800,   s3:4500,   ru:"12 линий за 90 сек", en:"12 lines / 90 sec"   },
+        { type:"tspin",       goal:1,    start:2, s2:2500,  s3:6000,   ru:"Сделай T-Spin",         en:"Make a T-Spin"       },
+        { type:"score",       goal:3500, start:3, s2:3500,  s3:8000,   ru:"Набери 3 500 очков",    en:"Reach 3 500 pts"     },
+        { type:"lines",       goal:18,   start:3, s2:3000,  s3:7500,   ru:"18 линий · скор. 3",    en:"18 lines · lv 3"     },
+        { type:"combo",       goal:3,    start:3, s2:4000,  s3:9000,   ru:"Комбо ×3",              en:"Combo ×3"            },
+        { type:"lines_timed", goal:15,   time:100,start:3,  s2:4500,   s3:10000,  ru:"15 линий за 100 сек",en:"15 lines / 100 sec"  },
+        { type:"score",       goal:5000, start:3, s2:5000,  s3:11000,  ru:"Набери 5 000 очков",    en:"Reach 5 000 pts"     },
+        { type:"tspin",       goal:2,    start:3, s2:5500,  s3:12000,  ru:"T-Spin ×2",             en:"T-Spin ×2"           },
+        { type:"lines",       goal:20,   start:3, s2:5000,  s3:12000,  ru:"20 линий · скор. 3",    en:"20 lines · lv 3"     },
+        { type:"b2b",         goal:1,    start:3, s2:6000,  s3:14000,  ru:"Back-to-Back",          en:"Back-to-Back"        },
+        // --- Средний (21–30) ---
+        { type:"score",       goal:7000, start:4, s2:7000,  s3:16000,  ru:"Набери 7 000 очков",    en:"Reach 7 000 pts"     },
+        { type:"lines_timed", goal:20,   time:120,start:4,  s2:7000,   s3:16000,  ru:"20 линий за 2 мин",  en:"20 lines / 2 min"    },
+        { type:"combo",       goal:4,    start:4, s2:8000,  s3:18000,  ru:"Комбо ×4",              en:"Combo ×4"            },
+        { type:"tspin",       goal:3,    start:4, s2:9000,  s3:20000,  ru:"T-Spin ×3",             en:"T-Spin ×3"           },
+        { type:"lines",       goal:25,   start:4, s2:8500,  s3:19000,  ru:"25 линий · скор. 4",    en:"25 lines · lv 4"     },
+        { type:"score",       goal:10000,start:4, s2:10000, s3:22000,  ru:"Набери 10 000 очков",   en:"Reach 10 000 pts"    },
+        { type:"b2b",         goal:2,    start:4, s2:11000, s3:24000,  ru:"B2B ×2",                en:"B2B ×2"              },
+        { type:"lines_timed", goal:25,   time:120,start:5,  s2:11000,  s3:25000,  ru:"25 линий за 2 мин",  en:"25 lines / 2 min"    },
+        { type:"score",       goal:13000,start:5, s2:13000, s3:28000,  ru:"13 000 очков · скор. 5",en:"13 000 pts · lv 5"   },
+        { type:"tspin",       goal:4,    start:5, s2:13500, s3:29000,  ru:"T-Spin ×4",             en:"T-Spin ×4"           },
+        // --- Сложный (31–40) ---
+        { type:"lines",       goal:30,   start:5, s2:14000, s3:30000,  ru:"30 линий · скор. 5",    en:"30 lines · lv 5"     },
+        { type:"combo",       goal:5,    start:5, s2:15000, s3:32000,  ru:"Комбо ×5",              en:"Combo ×5"            },
+        { type:"score",       goal:18000,start:6, s2:18000, s3:38000,  ru:"18 000 очков · скор. 6",en:"18 000 pts · lv 6"   },
+        { type:"b2b",         goal:3,    start:5, s2:17000, s3:36000,  ru:"B2B ×3",                en:"B2B ×3"              },
+        { type:"lines_timed", goal:30,   time:120,start:6,  s2:18000,  s3:39000,  ru:"30 линий за 2 мин",  en:"30 lines / 2 min"    },
+        { type:"tspin",       goal:5,    start:6, s2:20000, s3:43000,  ru:"T-Spin ×5 · скор. 6",   en:"T-Spin ×5 · lv 6"    },
+        { type:"score",       goal:25000,start:6, s2:25000, s3:52000,  ru:"25 000 очков",          en:"Reach 25 000 pts"    },
+        { type:"lines",       goal:35,   start:6, s2:24000, s3:50000,  ru:"35 линий · скор. 6",    en:"35 lines · lv 6"     },
+        { type:"combo",       goal:6,    start:6, s2:26000, s3:55000,  ru:"Комбо ×6",              en:"Combo ×6"            },
+        { type:"b2b",         goal:4,    start:6, s2:28000, s3:58000,  ru:"B2B ×4 · скор. 6",      en:"B2B ×4 · lv 6"       },
+        // --- Эксперт (41–50) ---
+        { type:"score",       goal:35000,start:7, s2:35000, s3:70000,  ru:"35 000 очков · скор. 7",en:"35 000 pts · lv 7"   },
+        { type:"tspin",       goal:6,    start:7, s2:36000, s3:72000,  ru:"T-Spin ×6 · скор. 7",   en:"T-Spin ×6 · lv 7"    },
+        { type:"lines_timed", goal:35,   time:120,start:7,  s2:37000,  s3:75000,  ru:"35 линий за 2 мин",  en:"35 lines / 2 min"    },
+        { type:"lines",       goal:40,   start:7, s2:40000, s3:80000,  ru:"40 линий · скор. 7",    en:"40 lines · lv 7"     },
+        { type:"combo",       goal:7,    start:8, s2:43000, s3:86000,  ru:"Комбо ×7 · скор. 8",    en:"Combo ×7 · lv 8"     },
+        { type:"b2b",         goal:5,    start:7, s2:44000, s3:88000,  ru:"B2B ×5 · скор. 7",      en:"B2B ×5 · lv 7"       },
+        { type:"score",       goal:55000,start:8, s2:55000, s3:110000, ru:"55 000 очков · скор. 8",en:"55 000 pts · lv 8"   },
+        { type:"tspin",       goal:8,    start:8, s2:58000, s3:115000, ru:"T-Spin ×8 · скор. 8",   en:"T-Spin ×8 · lv 8"    },
+        { type:"lines_timed", goal:40,   time:120,start:9,  s2:62000,  s3:125000, ru:"40 линий за 2 мин",  en:"40 lines / 2 min"    },
+        { type:"score",       goal:100000,start:9,s2:100000,s3:200000, ru:"100 000 очков!",        en:"100 000 pts!"        },
     ];
 
     const MILESTONES = [10000, 50000, 100000, 200000, 500000, 1000000];
     const THEME_KEY = "tetris.theme";
+    const BLAST_BEST_KEY = "blastBest";
+
+    let selectedMenuMode = 'classic';
 
     // ===== Анимированный фон меню =====
     const MenuBg = (() => {
@@ -34,62 +82,131 @@
             [[1,0],[1,0],[1,1]],
             [[0,1],[0,1],[1,1]],
         ];
-        let canvas, ctx, pieces = [], running = false, raf = 0, lastTs = 0;
+        // Three parallax depth layers: [maxCount, minSize, maxSize, minOp, maxOp, minSpeed, maxSpeed]
+        const LAYERS = [
+            [10, 10, 17, 0.018, 0.034, 7,  16],   // far  — small, slow, dim
+            [12, 19, 29, 0.036, 0.068, 15, 30],   // mid  — medium
+            [6,  33, 52, 0.055, 0.100, 27, 50],   // near — large, fast, bright + glow
+        ];
+        // Classic Tetris piece colours [r,g,b]
+        const FLOOR_COLORS = [
+            [0,229,255],[224,64,251],[255,224,64],[255,64,129],[41,121,255],[105,240,174],[255,109,0],
+        ];
+        let canvas, ctx, pieces = [], floorCells = [], running = false, raf = 0, lastTs = 0;
         let accentRgb = [0, 229, 255];
 
-        function spawnPiece(atRandom) {
+        function rrect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y,     x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x,     y + h, r);
+            ctx.arcTo(x,     y + h, x,     y,     r);
+            ctx.arcTo(x,     y,     x + w, y,     r);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function spawn(li, random) {
+            const [, mn, mx, mno, mxo, mnv, mxv] = LAYERS[li];
             const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-            const size = 20 + Math.random() * 18;
-            const cols = shape[0].length, rows = shape.length;
+            const size  = mn + Math.random() * (mx - mn);
+            const cols  = shape[0].length, rows = shape.length;
             const w = canvas.width, h = canvas.height;
             return {
-                shape, size,
-                x: Math.random() * Math.max(1, w - cols * size),
-                y: atRandom ? Math.random() * h : -(rows * size + 10),
-                vy: 16 + Math.random() * 26,
-                opacity: 0.045 + Math.random() * 0.065,
+                shape, size, layer: li,
+                x:  Math.random() * Math.max(1, w - cols * size),
+                y:  random ? Math.random() * (h + rows * size) - rows * size : -(rows * size + 4),
+                vy: mnv + Math.random() * (mxv - mnv),
+                op: mno + Math.random() * (mxo - mno),
             };
+        }
+
+        function buildFloor() {
+            floorCells = [];
+            const w = canvas.width, h = canvas.height;
+            if (!w || !h) return;
+            const cs = Math.max(18, Math.min(28, Math.round(w / 16)));
+            const numCols = Math.ceil(w / cs) + 1;
+            const maxH = Math.max(3, Math.floor(h * 0.30 / cs));
+            // Smooth random-walk height profile
+            let prev = 2 + Math.floor(Math.random() * Math.ceil(maxH * 0.55));
+            const heights = [];
+            for (let c = 0; c < numCols; c++) {
+                prev = Math.max(1, Math.min(maxH, prev + Math.floor((Math.random() - 0.42) * 3)));
+                heights.push(prev);
+            }
+            for (let c = 0; c < numCols; c++) {
+                for (let r = 0; r < heights[c]; r++) {
+                    if (Math.random() < 0.11) continue; // ~11% holes
+                    floorCells.push({
+                        x: c * cs, y: h - (r + 1) * cs, cs,
+                        rgb: FLOOR_COLORS[Math.floor(Math.random() * FLOOR_COLORS.length)],
+                    });
+                }
+            }
         }
 
         function resize() {
             if (!canvas) return;
-            canvas.width = canvas.offsetWidth;
+            canvas.width  = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
+            buildFloor();
         }
 
         function tick(ts) {
             if (!running) return;
             const dt = Math.min(50, ts - lastTs) / 1000;
             lastTs = ts;
-            if (pieces.length < 18 && Math.random() < 0.05) pieces.push(spawnPiece(false));
-            pieces = pieces.filter((p) => { p.y += p.vy * dt; return p.y < canvas.height + 100; });
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const [r, g, b] = accentRgb;
-            pieces.forEach((p) => {
-                ctx.fillStyle = `rgba(${r},${g},${b},${p.opacity})`;
-                p.shape.forEach((row, ry) =>
-                    row.forEach((cell, cx) => {
-                        if (!cell) return;
-                        const gap = 2;
-                        ctx.fillRect(Math.round(p.x + cx * p.size + gap), Math.round(p.y + ry * p.size + gap), p.size - gap * 2, p.size - gap * 2);
-                    }),
-                );
+
+            LAYERS.forEach((cfg, li) => {
+                if (pieces.filter(p => p.layer === li).length < cfg[0] && Math.random() < 0.06)
+                    pieces.push(spawn(li, false));
             });
+            pieces = pieces.filter(p => { p.y += p.vy * dt; return p.y < canvas.height + 80; });
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Tetris floor — accumulated coloured blocks
+            floorCells.forEach(cell => {
+                const [r, g, b] = cell.rgb;
+                const gap = cell.cs * 0.08, bs = cell.cs - gap * 2;
+                ctx.fillStyle = `rgba(${r},${g},${b},0.065)`;
+                rrect(cell.x + gap, cell.y + gap, bs, bs, Math.max(1, bs * 0.12));
+            });
+
+            const [r, g, b] = accentRgb;
+            for (let li = 0; li < 3; li++) {
+                if (li === 2) { ctx.shadowColor = `rgba(${r},${g},${b},0.55)`; ctx.shadowBlur = 9; }
+                pieces.filter(p => p.layer === li).forEach(p => {
+                    ctx.fillStyle = `rgba(${r},${g},${b},${p.op})`;
+                    const gap = p.size * 0.09, rad = Math.max(1.5, p.size * 0.18);
+                    const bs  = p.size - gap * 2;
+                    p.shape.forEach((row, ry) =>
+                        row.forEach((cell, cx) => {
+                            if (!cell) return;
+                            rrect(p.x + cx * p.size + gap, p.y + ry * p.size + gap, bs, bs, rad);
+                        })
+                    );
+                });
+                if (li === 2) { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
+            }
             raf = requestAnimationFrame(tick);
         }
 
         return {
             init(canvasEl) {
                 canvas = canvasEl;
-                ctx = canvas.getContext("2d");
-                window.addEventListener("resize", resize);
-                resize();
-                for (let i = 0; i < 14; i++) pieces.push(spawnPiece(true));
+                ctx = canvas.getContext('2d');
+                window.addEventListener('resize', resize);
+                resize(); // also calls buildFloor
+                LAYERS.forEach((_, li) => {
+                    const n = [10, 12, 5][li];
+                    for (let i = 0; i < n; i++) pieces.push(spawn(li, true));
+                });
             },
             start() {
                 if (running) return;
-                running = true;
-                resize();
+                running = true; resize();
                 lastTs = performance.now();
                 raf = requestAnimationFrame(tick);
             },
@@ -130,12 +247,30 @@
         langLabel: $("langLabel"),
 
         overlayMenu: $("overlayMenu"),
+        overlayBlast: $("overlayBlast"),
+        overlayBlastOver: $("overlayBlastOver"),
         overlayLevelSelect: $("overlayLevelSelect"),
         overlayPause: $("overlayPause"),
         overlayLevelComplete: $("overlayLevelComplete"),
         overlayGameOver: $("overlayGameOver"),
         overlaySettings: $("overlaySettings"),
         overlayLeaderboard: $("overlayLeaderboard"),
+
+        modeCardClassic: $("modeCardClassic"),
+        modeCardBlast: $("modeCardBlast"),
+
+        blastCanvas: $("blastCanvas"),
+        blastField: $("blastField"),
+        blastSlot0: $("blastSlot0"),
+        blastSlot1: $("blastSlot1"),
+        blastSlot2: $("blastSlot2"),
+        blastScore: $("blastScore"),
+        blastBestDisp: $("blastBestDisp"),
+        blastGoScore: $("blastGoScore"),
+        blastGoBest: $("blastGoBest"),
+        btnBlastMenu: $("btnBlastMenu"),
+        btnBlastRetry: $("btnBlastRetry"),
+        btnBlastGoMenu: $("btnBlastGoMenu"),
 
         levelGrid: $("levelGrid"),
         streakBadge: $("streakBadge"),
@@ -444,7 +579,8 @@
 
     // ===== Оверлеи =====
     const ALL_OVERLAY_KEYS = [
-        "overlayMenu","overlayLevelSelect","overlayPause",
+        "overlayMenu","overlayBlast","overlayBlastOver",
+        "overlayLevelSelect","overlayPause",
         "overlayLevelComplete","overlayGameOver","overlaySettings","overlayLeaderboard",
     ];
     function showOverlay(el) {
@@ -467,6 +603,49 @@
     }
 
     // ===== Запуск =====
+    // ===== Режим игры (меню) =====
+    function setMenuMode(mode) {
+        selectedMenuMode = mode;
+        dom.modeCardClassic.classList.toggle('mode-card--active', mode === 'classic');
+        dom.modeCardBlast.classList.toggle('mode-card--active', mode === 'blast');
+        dom.btnLevels.hidden      = (mode === 'blast');
+        dom.btnLeaderboard.hidden = (mode === 'blast');
+        if (dom.controlsHint) dom.controlsHint.hidden = (mode === 'blast');
+    }
+
+    // ===== Block Blast =====
+    function startBlast() {
+        hideOverlays();
+        setPauseButton(false);
+        SDK.gameplayStart();
+        Audio.unlock();
+        touchStreak();
+        const best = parseInt(Storage.get(BLAST_BEST_KEY)) || 0;
+        dom.blastBestDisp.textContent = best.toLocaleString();
+        dom.blastScore.textContent = '0';
+        showOverlay(dom.overlayBlast);
+        BlastGame.start();
+        BlastGame.on('clear', ({ rows, cols, combo, score }) => {
+            dom.blastScore.textContent = score.toLocaleString();
+            const n = rows + cols;
+            if (combo > 1) showToast(I18N.t('combo') + combo, { accent: true, duration: 900 });
+            else if (n >= 2) showToast(n + (I18N.current === 'ru' ? ' линий!' : ' lines!'), { accent: true, duration: 900 });
+        });
+        BlastGame.on('over', ({ score }) => {
+            SDK.gameplayStop();
+            Audio.gameOver();
+            const prev  = parseInt(Storage.get(BLAST_BEST_KEY)) || 0;
+            const best2 = Math.max(score, prev);
+            if (best2 > prev) Storage.set({ [BLAST_BEST_KEY]: best2 });
+            setTimeout(async () => {
+                dom.blastGoScore.textContent = score.toLocaleString();
+                dom.blastGoBest.textContent  = best2.toLocaleString();
+                showOverlay(dom.overlayBlastOver);
+                await SDK.showInterstitial();
+            }, 700);
+        });
+    }
+
     function startMarathon() {
         gameMode="marathon"; currentCampaignLevel=1; levelGoalLines=0; levelGoalMet=false;
         sessionTspins=0; sessionB2bs=0; stopLevelTimer();
@@ -759,8 +938,13 @@
 
     // ===== Кнопки =====
     function bindUI() {
-        dom.btnMarathon.addEventListener("click",()=>startMarathon());
+        dom.btnMarathon.addEventListener("click",()=>{ if(selectedMenuMode==='blast') startBlast(); else startMarathon(); });
         dom.btnLevels.addEventListener("click",()=>{ renderLevelGrid(); showOverlay(dom.overlayLevelSelect); });
+        dom.modeCardClassic.addEventListener("click",()=>setMenuMode('classic'));
+        dom.modeCardBlast.addEventListener("click",()=>setMenuMode('blast'));
+        dom.btnBlastMenu.addEventListener("click",()=>{ BlastGame.over=true; SDK.gameplayStop(); renderStreakBadge(); renderLevelGrid(); showOverlay(dom.overlayMenu); });
+        dom.btnBlastRetry.addEventListener("click",()=>startBlast());
+        dom.btnBlastGoMenu.addEventListener("click",()=>{ renderStreakBadge(); renderLevelGrid(); showOverlay(dom.overlayMenu); });
         dom.btnLeaderboard.addEventListener("click",()=>showLeaderboard(dom.overlayMenu));
         dom.btnOpenSettings.addEventListener("click",()=>{
             applyTheme(document.documentElement.dataset.theme||'neon');
@@ -822,7 +1006,8 @@
     }
 
     function applyControlHint() {
-        dom.controlsHint.textContent=I18N.t(SDK.isMobile()?"hint_touch":"hint_desktop");
+        dom.controlsHint.textContent = I18N.t(SDK.isMobile() ? "hint_touch" : "hint_desktop");
+        dom.controlsHint.hidden = (selectedMenuMode === 'blast');
     }
 
     // ===== Загрузка =====
@@ -852,12 +1037,15 @@
         input=new Input(game, { audio:Audio, playfield:dom.playfield, touchpad:dom.touchpad, onPauseToggle:togglePause, onUnlock:()=>Audio.unlock() });
 
         MenuBg.init($("menuBg"));
+        BlastGame.init(dom.blastCanvas, [dom.blastSlot0, dom.blastSlot1, dom.blastSlot2], dom.blastField);
+        window.addEventListener('resize', () => { if (dom.overlayBlast.classList.contains('overlay--active')) BlastGame.resize(); });
 
         bindGameEvents();
         bindUI();
         applyControlHint();
 
         syncCtrlMode();
+        setMenuMode(selectedMenuMode);
         renderLevelGrid();
         renderStreakBadge();
 

@@ -288,6 +288,43 @@
                     ><span class="accent" data-i18n="title_b">рис</span>
                 </h1>
                 <div id="streakBadge" class="streak-badge" hidden></div>
+
+                <!-- Выбор режима игры -->
+                <div class="mode-picker" id="modePicker">
+                    <button class="mode-card mode-card--active" id="modeCardClassic" type="button">
+                        <span class="mode-card__ico">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <rect x="1" y="1" width="8" height="8" rx="1.5"/>
+                                <rect x="1" y="11" width="8" height="8" rx="1.5"/>
+                                <rect x="11" y="11" width="8" height="8" rx="1.5"/>
+                            </svg>
+                        </span>
+                        <span class="mode-card__body">
+                            <span class="mode-card__name" data-i18n="mode_classic">Тетрис</span>
+                            <span class="mode-card__desc" data-i18n="mode_classic_desc">Падающие фигуры</span>
+                        </span>
+                    </button>
+                    <button class="mode-card" id="modeCardBlast" type="button">
+                        <span class="mode-card__ico">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <rect x="1"  y="1"  width="5" height="5" rx="1"/>
+                                <rect x="8"  y="1"  width="5" height="5" rx="1" opacity=".45"/>
+                                <rect x="15" y="1"  width="5" height="5" rx="1"/>
+                                <rect x="1"  y="8"  width="5" height="5" rx="1" opacity=".45"/>
+                                <rect x="8"  y="8"  width="5" height="5" rx="1"/>
+                                <rect x="15" y="8"  width="5" height="5" rx="1" opacity=".45"/>
+                                <rect x="1"  y="15" width="5" height="5" rx="1"/>
+                                <rect x="8"  y="15" width="5" height="5" rx="1"/>
+                                <rect x="15" y="15" width="5" height="5" rx="1" opacity=".45"/>
+                            </svg>
+                        </span>
+                        <span class="mode-card__body">
+                            <span class="mode-card__name" data-i18n="mode_blast">Block Blast</span>
+                            <span class="mode-card__desc" data-i18n="mode_blast_desc">Расставляй фигуры</span>
+                        </span>
+                    </button>
+                </div>
+
                 <button
                     class="btn btn--primary btn--lg"
                     id="btnMarathon"
@@ -310,7 +347,56 @@
             </div>
         </div>
 
-        <!-- 2. Выбор уровня -->
+        <!-- 2. Block Blast — полноэкранная игра -->
+        <div class="overlay overlay--screen" id="overlayBlast">
+            <div class="blast-layout">
+                <div class="blast-header">
+                    <button class="iconbtn" id="btnBlastMenu" type="button" aria-label="Меню">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M19 12H5M12 5l-7 7 7 7"/>
+                        </svg>
+                    </button>
+                    <div class="blast-score-block">
+                        <div class="blast-score" id="blastScore">0</div>
+                        <div class="blast-best-row">
+                            <span data-i18n="best">Лучший</span>
+                            <span id="blastBestDisp">0</span>
+                        </div>
+                    </div>
+                    <div class="blast-header-spacer"></div>
+                </div>
+                <div class="blast-field" id="blastField">
+                    <canvas id="blastCanvas"></canvas>
+                </div>
+                <div class="blast-tray">
+                    <canvas class="blast-slot" id="blastSlot0"></canvas>
+                    <canvas class="blast-slot" id="blastSlot1"></canvas>
+                    <canvas class="blast-slot" id="blastSlot2"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Block Blast — конец игры -->
+        <div class="overlay" id="overlayBlastOver">
+            <div class="overlay__panel">
+                <h2 class="overlay__heading" data-i18n="game_over">Игра окончена</h2>
+                <div class="finalstats">
+                    <div class="finalstats__row">
+                        <span data-i18n="score">Счёт</span>
+                        <strong id="blastGoScore">0</strong>
+                    </div>
+                    <div class="finalstats__row">
+                        <span data-i18n="best">Лучший</span>
+                        <strong id="blastGoBest">0</strong>
+                    </div>
+                </div>
+                <button class="btn btn--primary" id="btnBlastRetry" data-i18n="play_again">Ещё раз</button>
+                <button class="btn btn--ghost" id="btnBlastGoMenu" data-i18n="to_menu">В меню</button>
+            </div>
+        </div>
+
+        <!-- 4. Выбор уровня -->
         <div class="overlay" id="overlayLevelSelect">
             <div class="overlay__panel overlay__panel--lg">
                 <h2 class="overlay__heading" data-i18n="levels">Уровни</h2>
@@ -1370,6 +1456,7 @@
         <script src="js/tetris.js"></script>
         <script src="js/renderer.js"></script>
         <script src="js/input.js"></script>
+        <script src="js/blast.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>
