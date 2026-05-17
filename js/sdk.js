@@ -46,7 +46,7 @@
                 }
 
                 try {
-                    this.leaderboards = await this.ysdk.getLeaderboards();
+                    this.leaderboards = this.ysdk.leaderboards || null;
                 } catch (_) {
                     this.leaderboards = null;
                 }
@@ -278,7 +278,7 @@
         async submitScore(score) {
             if (!this.leaderboards || !score) return;
             try {
-                await this.leaderboards.setLeaderboardScore(LB_NAME, score);
+                await this.leaderboards.setScore(LB_NAME, score);
             } catch (_) {}
         },
 
@@ -288,7 +288,7 @@
         async getLeaderboardEntries(top = 10) {
             if (!this.leaderboards) return null;
             try {
-                return await this.leaderboards.getLeaderboardEntries(LB_NAME, {
+                return await this.leaderboards.getEntries(LB_NAME, {
                     quantityTop: top,
                     includeUser: true,
                     quantityAround: 0,

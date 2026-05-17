@@ -11,7 +11,8 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:8081/)",
       "Bash(curl -s -o /dev/null -w \"sdk.js %{http_code}\" http://localhost:8081/js/sdk.js)",
       "Bash(curl -s -o /dev/null -w \"main.js %{http_code}\" http://localhost:8081/js/main.js)",
-      "PowerShell(Out-Null *)"
+      "PowerShell(Out-Null *)",
+      "WebFetch(domain:yandex.ru)"
     ]
   }
 }
